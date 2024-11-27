@@ -1,5 +1,8 @@
+# Streamlit secrets
+.streamlit/
+
 # Firebase credentials
-*.json
+*firebase-adminsdk*.json
 .env
 
 # Python
@@ -8,16 +11,31 @@ __pycache__/
 *$py.class
 .Python
 env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 venv/
-.env/
-.venv/
+ENV/
 
 # IDE
-.vscode/
 .idea/
+.vscode/
+*.swp
+*.swo
 
-# Streamlit
-.streamlit/
-
-# Misc
+# OS
 .DS_Store
+Thumbs.db
