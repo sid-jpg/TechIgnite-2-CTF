@@ -1,9 +1,13 @@
 # Streamlit secrets
 .streamlit/
+*.toml
+!secrets_template.toml
 
 # Firebase credentials
 *firebase-adminsdk*.json
 .env
+*.json
+!package.json
 
 # Python
 __pycache__/
@@ -29,6 +33,8 @@ var/
 # Virtual Environment
 venv/
 ENV/
+.env/
+.venv/
 
 # IDE
 .idea/

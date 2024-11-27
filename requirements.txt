@@ -6,5 +6,7 @@ pyrebase4==4.6.0
 python-dotenv==1.0.0
 python-jwt==4.0.0
 requests==2.29.0
-gcloud==0.18.3
-Pillow==9.5.0 --only-binary :all:
+google-cloud-storage==2.14.0
+Pillow==9.5.0
+numpy==1.24.3
+protobuf==3.20.3
