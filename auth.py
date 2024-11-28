@@ -18,10 +18,6 @@ def init_session_state():
         st.session_state["authenticated"] = False
     if "user_info" not in st.session_state:
         st.session_state["user_info"] = None
-    if "user_token" not in st.session_state:
-        st.session_state["user_token"] = None
-    if "user_role" not in st.session_state:
-        st.session_state["user_role"] = None
 
 init_session_state()
 
@@ -62,16 +58,6 @@ def login(email, password):
                 "email": decoded_token.get("email"),
                 "uid": decoded_token.get("uid")
             }
-            st.session_state["user_token"] = id_token
-            
-            # Check for admin claim
-            claims = decoded_token.get("claims", {})
-            if claims.get("admin", False):
-                st.session_state["user_role"] = "admin"
-                print("User role: admin")
-            else:
-                st.session_state["user_role"] = "user"
-                print("User role: user")
             
             return "success"
         else:
@@ -93,7 +79,7 @@ def login(email, password):
 
 def logout():
     """Handle logout"""
-    for key in ["authenticated", "user_info", "user_token", "user_role"]:
+    for key in ["authenticated", "user_info"]:
         if key in st.session_state:
             del st.session_state[key]
     init_session_state()
@@ -105,39 +91,6 @@ def login_required(func):
         if not st.session_state.get("authenticated", False):
             st.warning("Please log in to access this page")
             show_login()
-            return
-        return func(*args, **kwargs)
-    return wrapper
-
-def verify_admin_credentials(username, password):
-    """Verify admin credentials against the Firestore 'admins' collection"""
-    try:
-        admins_ref = admin_db.collection('admins')
-        query = admins_ref.where('username', '==', username).where('password', '==', password).stream()
-        return any(admin for admin in query)
-    except Exception as e:
-        print(f"Error verifying admin credentials: {str(e)}")
-        return False
-
-def admin_login(username, password):
-    """Handle admin login and set session state if successful"""
-    if verify_admin_credentials(username, password):
-        st.session_state["authenticated"] = True
-        st.session_state["user_role"] = "admin"
-        st.session_state["user_info"] = {"username": username}
-        return "Admin login successful"
-    return "Invalid admin credentials"
-
-def admin_required(func):
-    """Decorator to require admin role for certain pages/functions"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if not st.session_state.get("authenticated", False):
-            st.warning("Please log in to access this page")
-            show_admin_login()
-            return
-        if st.session_state.get("user_role") != "admin":
-            st.error("You don't have permission to access this page")
             return
         return func(*args, **kwargs)
     return wrapper
@@ -173,20 +126,6 @@ def show_login():
                         st.error(result)
             else:
                 st.error("Please enter both email and password")
-
-def show_admin_login():
-    """Display admin login form"""
-    st.title("Admin Login")
-    with st.form("admin_login"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Login")
-        if submit:
-            message = admin_login(username, password)
-            if "successful" in message:
-                st.success(message)
-            else:
-                st.error(message)
 
 def init_auth():
     """Initialize authentication state"""
