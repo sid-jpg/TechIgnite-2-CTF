@@ -6,13 +6,13 @@ import time
 def init_session_state():
     """Initialize all session state variables"""
     if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
+        st.session_state["authenticated"] = False
     if "user_info" not in st.session_state:
-        st.session_state.user_info = None
+        st.session_state["user_info"] = None
     if "login_status" not in st.session_state:
-        st.session_state.login_status = None
+        st.session_state["login_status"] = None
     if "user_role" not in st.session_state:
-        st.session_state.user_role = None
+        st.session_state["user_role"] = None
 
 # Initialize session state at startup
 init_session_state()
@@ -47,131 +47,102 @@ if firebase_config:
 else:
     auth = None
 
-def init_auth():
-    """Initialize authentication state"""
-    if not is_authenticated():
-        show_login()
-    elif st.session_state.login_status == 'success':
-        st.session_state.login_status = None
+def is_authenticated():
+    """Check if user is authenticated"""
+    return st.session_state.get("authenticated", False)
 
-def show_login():
-    """Show login form"""
-    st.markdown("""
-    <style>
-        /* Dark theme colors */
-        :root {
-            --bg-color: #1a1a1a;
-            --card-bg: rgba(30, 30, 30, 0.95);
-            --text-color: #e0e0e0;
-            --input-bg: #2d2d2d;
-            --input-border: #3d3d3d;
-            --input-focus: #4a4a4a;
-            --button-gradient: linear-gradient(135deg, #ff4b4b 0%, #ff6b6b 100%);
-        }
+def get_user_info():
+    """Get current user information"""
+    return st.session_state.get("user_info", None)
 
-        /* Login form styling */
-        .login-form {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            max-width: 400px;
-            margin: 2rem auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .stTextInput > div > div > input {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-color);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-        }
-
-        .stTextInput > div > div > input:focus {
-            border-color: #ff4b4b;
-            box-shadow: 0 0 0 3px rgba(255, 75, 75, 0.15);
-        }
-
-        .stButton > button {
-            background: var(--button-gradient);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.25);
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="login-form">', unsafe_allow_html=True)
-    st.title("Login")
-    
-    # Show success/error messages if they exist
-    if st.session_state.login_status == 'success':
-        st.success("Login successful!")
-        st.session_state.login_status = None
-        st.experimental_rerun()
-    elif st.session_state.login_status == 'error':
-        st.error("Invalid credentials. Please try again.")
-        st.session_state.login_status = None
-
-    # Login form
-    with st.form("login_form"):
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Login")
-
-        if submit and email and password:
-            try:
-                # Authenticate with Firebase
-                user = auth.sign_in_with_email_and_password(email, password)
-                
-                # If we get here, authentication was successful
-                st.session_state.authenticated = True
-                st.session_state.user_info = user
-                st.session_state.user_role = 'admin'  # Set admin role for all authenticated users
-                st.session_state.login_status = 'success'
-                st.experimental_rerun()
-                
-            except Exception as e:
-                error_message = str(e)
-                if "INVALID_PASSWORD" in error_message:
-                    st.error("Invalid password. Please try again.")
-                elif "EMAIL_NOT_FOUND" in error_message:
-                    st.error("Email not found. Please check your email.")
-                else:
-                    st.error(f"Login failed: {error_message}")
-                st.session_state.login_status = 'error'
-
-    st.markdown('</div>', unsafe_allow_html=True)
+def login(email, password):
+    """Handle login and return success/error message"""
+    try:
+        if auth is None:
+            return "Firebase authentication not initialized properly"
+        
+        user = auth.sign_in_with_email_and_password(email, password)
+        st.session_state["authenticated"] = True
+        st.session_state["user_info"] = user
+        return "success"
+    except Exception as e:
+        print(f"Login error: {str(e)}")  # For debugging
+        return "Invalid email or password"
 
 def logout():
     """Handle logout"""
-    if st.sidebar.button('Logout'):
-        st.session_state.authenticated = False
-        st.session_state.user_info = None
-        st.session_state.user_role = None
-        st.session_state.login_status = None
-        st.experimental_rerun()
-
-def is_authenticated():
-    """Check if user is authenticated"""
-    return st.session_state.authenticated
+    st.session_state["authenticated"] = False
+    st.session_state["user_info"] = None
+    st.session_state["user_role"] = None
+    st.session_state["login_status"] = None
 
 def login_required(func):
     """Decorator to require login for certain pages/functions"""
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not is_authenticated():
-            init_auth()
-        else:
-            return func(*args, **kwargs)
+            st.warning("Please log in to access this page")
+            show_login()
+            return
+        return func(*args, **kwargs)
     return wrapper
+
+def show_login():
+    """Show login form"""
+    st.markdown("""
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .stButton>button {
+            width: 100%;
+            margin-top: 1rem;
+            background: linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .stButton>button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        st.markdown('<h1 class="login-header">Login</h1>', unsafe_allow_html=True)
+        
+        email = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+        
+        if st.button("Login"):
+            if email and password:
+                result = login(email, password)
+                if result == "success":
+                    st.session_state["login_status"] = "success"
+                    st.experimental_rerun()
+                else:
+                    st.error(result)
+            else:
+                st.error("Please enter both email and password")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+def init_auth():
+    """Initialize authentication state"""
+    if not is_authenticated():
+        show_login()
+    elif st.session_state.get("login_status") == "success":
+        st.session_state["login_status"] = None
