@@ -1,12 +1,16 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import auth as firebase_auth
+from firebase_admin import firestore
 from functools import wraps
 import time
-from firebase_init import init_firebase
+from firebase_init import init_firebase, get_db
 
 # Initialize Firebase Authentication
 auth = init_firebase()
+
+# Initialize Firestore
+admin_db = get_db()
 
 def init_session_state():
     """Initialize session state variables"""
@@ -105,13 +109,34 @@ def login_required(func):
         return func(*args, **kwargs)
     return wrapper
 
+def verify_admin_credentials(username, password):
+    """Verify admin credentials against the Firestore 'admins' collection"""
+    try:
+        admins_ref = admin_db.collection('admins')
+        query = admins_ref.where('username', '==', username).where('password', '==', password).stream()
+        for admin in query:
+            return True
+        return False
+    except Exception as e:
+        print(f"Error verifying admin credentials: {str(e)}")
+        return False
+
+def admin_login(username, password):
+    """Handle admin login and set session state if successful"""
+    if verify_admin_credentials(username, password):
+        st.session_state["authenticated"] = True
+        st.session_state["user_role"] = "admin"
+        return "Admin login successful"
+    else:
+        return "Invalid admin credentials"
+
 def admin_required(func):
     """Decorator to require admin role for certain pages/functions"""
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not st.session_state.get("authenticated", False):
             st.warning("Please log in to access this page")
-            show_login()
+            show_admin_login()
             return
         if st.session_state.get("user_role") != "admin":
             st.error("You don't have permission to access this page")
@@ -150,6 +175,15 @@ def show_login():
                         st.error(result)
             else:
                 st.error("Please enter both email and password")
+
+def show_admin_login():
+    """Display admin login form"""
+    st.title("Admin Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        message = admin_login(username, password)
+        st.info(message)
 
 def init_auth():
     """Initialize authentication state"""
