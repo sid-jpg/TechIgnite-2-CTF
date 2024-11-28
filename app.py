@@ -1,5 +1,5 @@
 import streamlit as st
-from firebase_init import init_firebase, verify_token
+from firebase_init import init_firebase
 from auth import login_required, logout
 
 # Initialize Firebase
@@ -43,6 +43,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+def show_challenges():
+    st.header("Available Challenges")
+    # Add your challenge display logic here
+    st.write("Challenge content will be displayed here")
+
 def main():
     st.title("Welcome to TechIgnite CTF")
     
@@ -51,9 +56,10 @@ def main():
         st.write("Please log in to continue")
         return
     
-    # Display user info
+    # Display user info and challenges
     user = st.session_state.user
     st.write(f"Welcome, {user['email']}")
+    show_challenges()
     
     # Logout button
     if st.button("Logout"):
