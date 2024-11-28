@@ -114,9 +114,7 @@ def verify_admin_credentials(username, password):
     try:
         admins_ref = admin_db.collection('admins')
         query = admins_ref.where('username', '==', username).where('password', '==', password).stream()
-        for admin in query:
-            return True
-        return False
+        return any(admin for admin in query)
     except Exception as e:
         print(f"Error verifying admin credentials: {str(e)}")
         return False
@@ -126,9 +124,9 @@ def admin_login(username, password):
     if verify_admin_credentials(username, password):
         st.session_state["authenticated"] = True
         st.session_state["user_role"] = "admin"
+        st.session_state["user_info"] = {"username": username}
         return "Admin login successful"
-    else:
-        return "Invalid admin credentials"
+    return "Invalid admin credentials"
 
 def admin_required(func):
     """Decorator to require admin role for certain pages/functions"""
@@ -179,11 +177,16 @@ def show_login():
 def show_admin_login():
     """Display admin login form"""
     st.title("Admin Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        message = admin_login(username, password)
-        st.info(message)
+    with st.form("admin_login"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Login")
+        if submit:
+            message = admin_login(username, password)
+            if "successful" in message:
+                st.success(message)
+            else:
+                st.error(message)
 
 def init_auth():
     """Initialize authentication state"""

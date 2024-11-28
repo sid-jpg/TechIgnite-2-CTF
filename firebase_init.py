@@ -37,47 +37,53 @@ def load_firebase_service_account():
         return None
 
 def init_firebase():
-    """Initialize Firebase Admin SDK and Authentication"""
-    try:
-        # Load service account
-        service_account_path = load_firebase_service_account()
-        if not service_account_path:
+    """Initialize Firebase with credentials from Streamlit secrets"""
+    if not firebase_admin._apps:
+        try:
+            # Get Firebase credentials from Streamlit secrets
+            firebase_creds = st.secrets["firebase"]
+            
+            # Create a temporary file to store the credentials
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+                json.dump(firebase_creds, f)
+                temp_file_path = f.name
+            
+            try:
+                # Initialize Firebase with the temporary credentials file
+                cred = credentials.Certificate(temp_file_path)
+                firebase_admin.initialize_app(cred)
+                print("Firebase Admin SDK initialized successfully")
+                
+                # Initialize Firestore
+                db = firestore.client()
+                print("Firestore initialized successfully")
+                
+                # Load Firebase web configuration from secrets
+                firebase_config = {
+                    "apiKey": st.secrets["firebase_web"]["apiKey"],
+                    "authDomain": st.secrets["firebase_web"]["authDomain"],
+                    "projectId": st.secrets["firebase_web"]["projectId"],
+                    "storageBucket": st.secrets["firebase_web"]["storageBucket"],
+                    "messagingSenderId": st.secrets["firebase_web"]["messagingSenderId"],
+                    "appId": st.secrets["firebase_web"]["appId"],
+                    "databaseURL": st.secrets["firebase_web"]["databaseURL"]
+                }
+                
+                # Initialize Pyrebase
+                firebase = pyrebase.initialize_app(firebase_config)
+                auth = firebase.auth()
+                print("Firebase Authentication initialized successfully")
+                
+                return auth
+            finally:
+                # Clean up the temporary file
+                os.unlink(temp_file_path)
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Firebase initialization error: {error_msg}")
+            if "API key not valid" in error_msg:
+                st.error("Invalid Firebase Web API Key. Please check your configuration.")
             return None
-            
-        # Initialize Firebase Admin SDK if not already initialized
-        if not firebase_admin._apps:
-            cred = credentials.Certificate(service_account_path)
-            firebase_admin.initialize_app(cred)
-            print("Firebase Admin SDK initialized successfully")
-        
-        # Initialize Firestore
-        db = firestore.client()
-        print("Firestore initialized successfully")
-        
-        # Load Firebase web configuration from secrets
-        firebase_config = {
-            "apiKey": st.secrets["firebase_web"]["apiKey"],
-            "authDomain": st.secrets["firebase_web"]["authDomain"],
-            "projectId": st.secrets["firebase_web"]["projectId"],
-            "storageBucket": st.secrets["firebase_web"]["storageBucket"],
-            "messagingSenderId": st.secrets["firebase_web"]["messagingSenderId"],
-            "appId": st.secrets["firebase_web"]["appId"],
-            "databaseURL": st.secrets["firebase_web"]["databaseURL"]
-        }
-        
-        # Initialize Pyrebase
-        firebase = pyrebase.initialize_app(firebase_config)
-        auth = firebase.auth()
-        print("Firebase Authentication initialized successfully")
-        
-        return auth
-            
-    except Exception as e:
-        error_msg = str(e)
-        print(f"Firebase initialization error: {error_msg}")
-        if "API key not valid" in error_msg:
-            st.error("Invalid Firebase Web API Key. Please check your configuration.")
-        return None
 
 def get_db():
     """Get Firestore database instance"""

@@ -42,11 +42,6 @@ firebase-credentials.json
 *.pem
 service-account*.json
 
-# Logs
-*.log
-logs/
-*.txt
-
 # Local development
 .env
 .env.local
