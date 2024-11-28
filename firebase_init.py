@@ -5,6 +5,34 @@ import pyrebase
 import json
 import os
 
+def debug_firebase_config():
+    """Debug Firebase configuration without exposing sensitive data"""
+    web_config = st.secrets.get("firebase_web", {})
+    
+    # Check if config exists
+    if not web_config:
+        st.error("Firebase Web configuration is missing")
+        return False
+        
+    # Check required fields
+    required_fields = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "databaseURL"]
+    missing_fields = [field for field in required_fields if not web_config.get(field)]
+    
+    if missing_fields:
+        st.error(f"Missing required Firebase Web configuration fields: {', '.join(missing_fields)}")
+        return False
+        
+    # Validate format of fields
+    if not web_config.get("projectId") in web_config.get("authDomain", ""):
+        st.error("Project ID does not match authDomain")
+        return False
+        
+    if not web_config.get("projectId") in web_config.get("storageBucket", ""):
+        st.error("Project ID does not match storageBucket")
+        return False
+    
+    return True
+
 def validate_firebase_config():
     """Validate Firebase configuration"""
     required_firebase_keys = [
@@ -32,6 +60,10 @@ def init_firebase():
     """Initialize Firebase Admin SDK and Authentication"""
     if not firebase_admin._apps:
         try:
+            # Debug configuration
+            if not debug_firebase_config():
+                return None
+                
             # Validate configuration
             validate_firebase_config()
             
@@ -65,6 +97,11 @@ def init_firebase():
                 "databaseURL": st.secrets["firebase_web"]["databaseURL"]
             }
             
+            # Print config for debugging (without sensitive data)
+            print(f"Initializing Firebase with project: {firebase_config['projectId']}")
+            print(f"Auth Domain: {firebase_config['authDomain']}")
+            print(f"Storage Bucket: {firebase_config['storageBucket']}")
+            
             firebase = pyrebase.initialize_app(firebase_config)
             auth = firebase.auth()
             print("Firebase Authentication initialized successfully")
@@ -75,13 +112,26 @@ def init_firebase():
             error_msg = str(e)
             if "API key not valid" in error_msg:
                 print("Invalid Firebase Web API Key. Please check your configuration.")
-                st.error("Invalid Firebase Web API Key. Please update your configuration in .streamlit/secrets.toml")
+                st.error("""
+                Invalid Firebase Web API Key. Please:
+                1. Go to Firebase Console
+                2. Open Project Settings
+                3. Under 'General' tab, find your Web API Key
+                4. Update the apiKey in .streamlit/secrets.toml
+                """)
             elif "private_key" in error_msg:
                 print("Invalid Firebase Admin SDK private key. Please check your configuration.")
-                st.error("Invalid Firebase Admin SDK private key. Please check your configuration.")
+                st.error("""
+                Invalid Firebase Admin SDK private key. Please:
+                1. Go to Firebase Console
+                2. Open Project Settings
+                3. Go to 'Service accounts' tab
+                4. Generate new private key
+                5. Update the private_key in .streamlit/secrets.toml
+                """)
             else:
                 print(f"Firebase initialization error: {error_msg}")
-                st.error("Error initializing Firebase. Please check your configuration.")
+                st.error(f"Error initializing Firebase: {error_msg}")
             return None
     else:
         try:
