@@ -24,7 +24,7 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
-.env
+env/
 
 # IDE
 .idea/
@@ -32,14 +32,18 @@ ENV/
 *.swp
 *.swo
 
-# Credentials and Sensitive Data
+# Credentials and Secrets
 *.key
 *.pem
-*credentials*.json
-*firebase*.json
+*.env
 config.py
-.env*
-secrets/
+firebase_credentials.json
+serviceAccountKey.json
+*_key.json
+credentials.json
+secrets.yaml
+secrets.yml
+secrets.json
 
 # Logs
 *.log
@@ -47,5 +51,11 @@ logs/
 log/
 
 # Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# System Files
 .DS_Store
 Thumbs.db

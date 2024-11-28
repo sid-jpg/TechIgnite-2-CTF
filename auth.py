@@ -18,7 +18,7 @@ init_session_state()
 
 def is_authenticated():
     """Check if user is authenticated"""
-    return "user_info" in st.session_state
+    return st.session_state.get("authenticated", False)
 
 def login_required(func):
     """Decorator to require login for certain pages"""
@@ -26,99 +26,45 @@ def login_required(func):
     def wrapper(*args, **kwargs):
         if not is_authenticated():
             show_restricted_access()
-            return None
+            return
         return func(*args, **kwargs)
     return wrapper
 
 def show_restricted_access():
-    """Show restricted access message with cyberpunk styling"""
+    """Display restricted access message"""
     st.markdown("""
-        <div class="cyberpunk-container">
-            <h1 class="glitch-text">Access Restricted 🔒</h1>
-            <div class="cyberpunk-card error-card">
-                <h3>Authentication Required</h3>
-                <p class="warning-text">This is a restricted area. Access denied.</p>
-                <div class="cyber-line"></div>
-                <p class="info-text">Please contact the administrator for access.</p>
-            </div>
+        <div style='
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff9d;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+        '>
+            <h1 style='
+                font-family: "Orbitron", sans-serif;
+                color: #00ff9d;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+                margin-bottom: 1rem;
+            '>⚠️ Restricted Access</h1>
+            <p style='
+                font-family: "Courier New", monospace;
+                color: #b3b3b3;
+                margin-bottom: 1rem;
+            '>This is a private application. Please contact administrator for access.</p>
+            <div style='
+                font-family: "Courier New", monospace;
+                color: #00ff9d;
+                background: rgba(0, 255, 157, 0.1);
+                padding: 1rem;
+                border-radius: 5px;
+                margin-top: 1rem;
+            '>Contact administrators for access credentials</div>
         </div>
-        
-        <style>
-            .error-card {
-                border-color: #ff0066 !important;
-                box-shadow: 0 0 20px rgba(255, 0, 102, 0.2) !important;
-            }
-            
-            .warning-text {
-                color: #ff0066 !important;
-                font-size: 1.2em !important;
-                margin: 1rem 0 !important;
-            }
-            
-            .info-text {
-                color: #00ff9d !important;
-                font-size: 0.9em !important;
-                opacity: 0.8 !important;
-            }
-            
-            .cyber-line {
-                height: 2px;
-                background: linear-gradient(90deg, #ff0066, #00ff9d);
-                margin: 1rem 0;
-                position: relative;
-            }
-            
-            .cyber-line::before {
-                content: '';
-                position: absolute;
-                width: 10px;
-                height: 10px;
-                background: #ff0066;
-                left: 0;
-                top: -4px;
-                transform: rotate(45deg);
-            }
-            
-            .cyber-line::after {
-                content: '';
-                position: absolute;
-                width: 10px;
-                height: 10px;
-                background: #00ff9d;
-                right: 0;
-                top: -4px;
-                transform: rotate(45deg);
-            }
-            
-            .glitch-text {
-                position: relative;
-                animation: glitch 3s infinite;
-            }
-            
-            @keyframes glitch {
-                0% {
-                    text-shadow: 0.05em 0 0 #ff0066, -0.05em -0.025em 0 #00ff9d;
-                }
-                14% {
-                    text-shadow: 0.05em 0 0 #ff0066, -0.05em -0.025em 0 #00ff9d;
-                }
-                15% {
-                    text-shadow: -0.05em -0.025em 0 #ff0066, 0.025em 0.025em 0 #00ff9d;
-                }
-                49% {
-                    text-shadow: -0.05em -0.025em 0 #ff0066, 0.025em 0.025em 0 #00ff9d;
-                }
-                50% {
-                    text-shadow: 0.025em 0.05em 0 #ff0066, 0.05em 0 0 #00ff9d;
-                }
-                99% {
-                    text-shadow: 0.025em 0.05em 0 #ff0066, 0.05em 0 0 #00ff9d;
-                }
-                100% {
-                    text-shadow: -0.025em 0 0 #ff0066, -0.025em -0.025em 0 #00ff9d;
-                }
-            }
-        </style>
     """, unsafe_allow_html=True)
 
 def logout():
