@@ -17,12 +17,35 @@ def init_session_state():
 # Initialize session state at startup
 init_session_state()
 
-# Get Firebase configuration from Streamlit secrets
-firebase_config = st.secrets["firebase_web"]
+def get_firebase_config():
+    """Get Firebase configuration from Streamlit secrets"""
+    try:
+        return {
+            "apiKey": st.secrets["firebase_web"]["apiKey"],
+            "authDomain": st.secrets["firebase_web"]["authDomain"],
+            "projectId": st.secrets["firebase_web"]["projectId"],
+            "storageBucket": st.secrets["firebase_web"]["storageBucket"],
+            "messagingSenderId": st.secrets["firebase_web"]["messagingSenderId"],
+            "appId": st.secrets["firebase_web"]["appId"],
+            "databaseURL": st.secrets["firebase_web"]["databaseURL"]
+        }
+    except Exception as e:
+        st.error("Error loading Firebase configuration. Please check your secrets.toml file.")
+        print(f"Firebase config error: {str(e)}")  # For debugging
+        return None
 
 # Initialize Firebase Authentication
-firebase = pyrebase.initialize_app(firebase_config)
-auth = firebase.auth()
+firebase_config = get_firebase_config()
+if firebase_config:
+    try:
+        firebase = pyrebase.initialize_app(firebase_config)
+        auth = firebase.auth()
+    except Exception as e:
+        st.error("Error initializing Firebase. Please check your configuration.")
+        print(f"Firebase init error: {str(e)}")  # For debugging
+        auth = None
+else:
+    auth = None
 
 def init_auth():
     """Initialize authentication state"""
