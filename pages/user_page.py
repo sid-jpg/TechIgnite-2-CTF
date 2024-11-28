@@ -12,7 +12,7 @@ if not firebase_admin._apps:
             "type": st.secrets["firebase"]["type"],
             "project_id": st.secrets["firebase"]["project_id"],
             "private_key_id": st.secrets["firebase"]["private_key_id"],
-            "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),  # Ensure newlines are properly handled
+            "private_key": st.secrets["firebase"]["private_key"],
             "client_email": st.secrets["firebase"]["client_email"],
             "client_id": st.secrets["firebase"]["client_id"],
             "auth_uri": st.secrets["firebase"]["auth_uri"],
@@ -23,8 +23,14 @@ if not firebase_admin._apps:
         }
         
         # Initialize Firebase with the credentials
-        cred = credentials.Certificate(firebase_creds)
-        firebase_admin.initialize_app(cred)
+        try:
+            app = firebase_admin.get_app()
+        except ValueError:
+            cred = credentials.Certificate(firebase_creds)
+            app = firebase_admin.initialize_app(cred)
+        
+        # Get Firestore database
+        db = firestore.client()
     except Exception as e:
         st.error(f"Firebase initialization error: {str(e)}")
         print(f"Detailed error: {str(e)}")  # For debugging
