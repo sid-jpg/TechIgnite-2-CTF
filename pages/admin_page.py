@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from datetime import datetime
 import plotly.express as px
 from manage_db import get_db
@@ -48,15 +47,16 @@ def get_team_stats():
         solved_questions = data.get('solvedQuestions', [])
         timestamp = data.get('timestamp')
         
-        team_data.append({
+        team_info = {
             'TeamID': team.id,
             'Questions Solved': ', '.join(solved_questions) if solved_questions else 'None',
             'Total Solved': data.get('totalCount', 0),
             'Last Solve': timestamp.strftime('%Y-%m-%d %H:%M:%S') if timestamp else 'No solves yet',
             'Progress': f"{len(solved_questions)}/{total_questions} questions"
-        })
+        }
+        team_data.append(team_info)
     
-    return pd.DataFrame(team_data)
+    return team_data
 
 def show_submission_history():
     """Show recent flag submission history"""
@@ -68,14 +68,15 @@ def show_submission_history():
     submission_data = []
     for sub in submissions_ref:
         data = sub.to_dict()
-        submission_data.append({
+        submission_info = {
             'Team': data.get('teamId'),
             'Question': data.get('questionId'),
             'Status': ' Correct' if data.get('isCorrect') else ' Wrong',
             'Time': data.get('timestamp').strftime('%H:%M:%S')
-        })
+        }
+        submission_data.append(submission_info)
     
-    return pd.DataFrame(submission_data)
+    return submission_data
 
 @login_required
 def render():
@@ -86,7 +87,7 @@ def render():
         st.subheader("Dashboard Controls")
         
         # Add logout button at the top
-        if st.button("🚪 Logout", use_container_width=True):
+        if st.button(" Logout", use_container_width=True):
             logout()
             st.experimental_rerun()
             
@@ -116,21 +117,19 @@ def render():
     
     with col1:
         st.subheader(" Team Progress")
-        teams_df = get_team_stats()
-        if not teams_df.empty:
-            st.dataframe(
-                teams_df.sort_values('Total Solved', ascending=False),
-                use_container_width=True,
-                height=400
-            )
+        teams_data = get_team_stats()
+        if teams_data:
+            # Sort teams by Total Solved
+            teams_data.sort(key=lambda x: x['Total Solved'], reverse=True)
+            st.table(teams_data)
         else:
             st.info("No team data available")
     
     with col2:
         st.subheader(" Recent Submissions")
-        submissions_df = show_submission_history()
-        if not submissions_df.empty:
-            st.dataframe(submissions_df, use_container_width=True)
+        submissions_data = show_submission_history()
+        if submissions_data:
+            st.table(submissions_data)
         else:
             st.info("No submissions yet")
     
@@ -147,14 +146,15 @@ def render():
         })
     
     if question_data:
-        q_df = pd.DataFrame(question_data)
+        # Create data for plotly
+        x_values = [q['Question'] for q in question_data]
+        y_values = [q['Solves'] for q in question_data]
+        
         fig = px.bar(
-            q_df,
-            x='Question',
-            y='Solves',
+            x=x_values,
+            y=y_values,
             title='Question Solve Distribution',
-            color='Solves',
-            color_continuous_scale='Viridis'
+            labels={'x': 'Question', 'y': 'Solves'}
         )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
