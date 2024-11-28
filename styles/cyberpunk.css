@@ -1,0 +1,221 @@
+/* Cyberpunk Theme for TechIgnite CTF */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* Base Theme */
+:root {
+    --neon-green: #00ff9d;
+    --dark-bg: #0a0a0a;
+    --dark-blue: #1a1a2e;
+    --text-gray: #b3b3b3;
+    --neon-pink: #ff00ff;
+    --neon-blue: #00ffff;
+}
+
+/* Global Styles */
+.stApp {
+    background: linear-gradient(45deg, var(--dark-bg), var(--dark-blue)) !important;
+    color: var(--neon-green) !important;
+}
+
+/* Container Styling */
+.appview-container .main .block-container {
+    padding: 2rem !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid var(--neon-green) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2) !important;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif !important;
+    color: var(--neon-green) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    text-shadow: 0 0 10px rgba(0, 255, 157, 0.5) !important;
+    margin-bottom: 1.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+h1 {
+    border-bottom: 2px solid var(--neon-green) !important;
+    font-size: 2.5em !important;
+}
+
+/* Text Elements */
+p, div, span {
+    font-family: 'Share Tech Mono', monospace !important;
+    color: var(--text-gray) !important;
+    line-height: 1.6 !important;
+}
+
+/* Input Fields */
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.3) !important;
+    border-color: var(--neon-blue) !important;
+}
+
+/* Buttons */
+.stButton > button {
+    font-family: 'Orbitron', sans-serif !important;
+    background: transparent !important;
+    color: var(--neon-green) !important;
+    border: 2px solid var(--neon-green) !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 2rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.2) !important;
+}
+
+.stButton > button:hover {
+    background: var(--neon-green) !important;
+    color: var(--dark-blue) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Select Boxes */
+.stSelectbox > div > div {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+}
+
+/* Alerts and Messages */
+.stAlert {
+    background: rgba(255, 0, 0, 0.1) !important;
+    border: 1px solid #ff0000 !important;
+    color: #ff0000 !important;
+    border-radius: 5px !important;
+    padding: 1rem !important;
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+.stSuccess {
+    background: rgba(0, 255, 157, 0.1) !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    border-radius: 5px !important;
+    padding: 1rem !important;
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+/* Cards and Containers */
+.css-12w0qpk {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--neon-green) !important;
+    border-radius: 10px !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.1) !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    font-family: 'Orbitron', sans-serif !important;
+    color: var(--text-gray) !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    color: var(--neon-green) !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+}
+
+/* Tables */
+.stTable {
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+.stTable thead th {
+    background-color: rgba(0, 255, 157, 0.1) !important;
+    color: var(--neon-green) !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+}
+
+.stTable tbody td {
+    color: var(--text-gray) !important;
+    border-bottom: 1px solid rgba(0, 255, 157, 0.2) !important;
+}
+
+/* Hide Streamlit Elements */
+#MainMenu {visibility: hidden !important;}
+footer {visibility: hidden !important;}
+.stDeployButton {display: none !important;}
+header {visibility: hidden !important;}
+[data-testid="collapsedControl"] {display: none !important;}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neon-green);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-blue);
+}
+
+/* Code Blocks */
+.stCodeBlock {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid var(--neon-green) !important;
+    border-radius: 5px !important;
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+/* Progress Bars */
+.stProgress > div > div > div > div {
+    background-color: var(--neon-green) !important;
+}
+
+/* Radio Buttons */
+.stRadio > div {
+    color: var(--text-gray) !important;
+}
+
+.stRadio > div > label > div {
+    border-color: var(--neon-green) !important;
+}
+
+.stRadio > div > label > div[data-checked="true"] {
+    background-color: var(--neon-green) !important;
+}
+
+/* Checkboxes */
+.stCheckbox > div > label > div {
+    border-color: var(--neon-green) !important;
+}
+
+.stCheckbox > div > label > div[data-checked="true"] {
+    background-color: var(--neon-green) !important;
+}

@@ -3,6 +3,7 @@ from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
 from manage_db import verify_flag, update_stats, get_db
+from auth import login_required
 
 # Get database instance
 db = get_db()
@@ -174,6 +175,7 @@ st.markdown("""
     </script>
 """, unsafe_allow_html=True)
 
+@login_required
 def render():
     st.title("CTF Challenge Submission")
     
@@ -238,5 +240,172 @@ def show_team_progress(db, team_id):
         else:
             st.warning("Team not found. Please check your team ID.")
 
+def show_user_page():
+    st.markdown("""
+        <div class="cyberpunk-container">
+            <h1 class="glitch-text">User Dashboard <span class="icon">🎮</span></h1>
+            
+            <div class="cyberpunk-grid">
+                <div class="cyberpunk-card">
+                    <h3>Challenge Progress</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%"></div>
+                        </div>
+                        <p class="progress-text">60% Complete</p>
+                    </div>
+                </div>
+                
+                <div class="cyberpunk-card">
+                    <h3>Active Challenges</h3>
+                    <ul class="cyber-list">
+                        <li class="active">Binary Exploitation</li>
+                        <li class="completed">Web Security</li>
+                        <li>Cryptography</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="cyberpunk-stats">
+                <div class="stat-card">
+                    <span class="stat-value">1337</span>
+                    <span class="stat-label">Total Points</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">5</span>
+                    <span class="stat-label">Challenges Solved</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">#42</span>
+                    <span class="stat-label">Global Rank</span>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            .cyberpunk-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin: 2rem 0;
+            }
+            
+            .progress-container {
+                margin: 1rem 0;
+            }
+            
+            .progress-bar {
+                height: 10px;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid var(--neon-green);
+                border-radius: 5px;
+                overflow: hidden;
+            }
+            
+            .progress {
+                height: 100%;
+                background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+                box-shadow: 0 0 10px var(--neon-green);
+            }
+            
+            .progress-text {
+                color: var(--neon-green) !important;
+                text-align: right;
+                margin-top: 0.5rem;
+                font-size: 0.9em;
+            }
+            
+            .cyber-list {
+                list-style: none;
+                padding: 0;
+                margin: 1rem 0;
+            }
+            
+            .cyber-list li {
+                padding: 0.5rem 1rem;
+                margin: 0.5rem 0;
+                border: 1px solid var(--neon-green);
+                border-radius: 3px;
+                color: var(--text-gray);
+                position: relative;
+            }
+            
+            .cyber-list li::before {
+                content: '>';
+                color: var(--neon-green);
+                margin-right: 0.5rem;
+            }
+            
+            .cyber-list li.active {
+                border-color: var(--neon-pink);
+                color: var(--neon-pink);
+            }
+            
+            .cyber-list li.completed {
+                border-color: var(--neon-green);
+                color: var(--neon-green);
+            }
+            
+            .cyberpunk-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin: 2rem 0;
+            }
+            
+            .stat-card {
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--neon-green);
+                padding: 1rem;
+                text-align: center;
+                border-radius: 5px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, var(--neon-green), transparent);
+            }
+            
+            .stat-value {
+                display: block;
+                font-size: 2em;
+                color: var(--neon-green);
+                font-family: 'Orbitron', sans-serif;
+                margin-bottom: 0.5rem;
+            }
+            
+            .stat-label {
+                color: var(--text-gray);
+                font-size: 0.9em;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 10px var(--neon-green);
+                }
+                50% {
+                    box-shadow: 0 0 20px var(--neon-green);
+                }
+                100% {
+                    box-shadow: 0 0 10px var(--neon-green);
+                }
+            }
+            
+            .stat-card:hover {
+                animation: pulse 2s infinite;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
 if __name__ == "__main__":
     render()
+    show_user_page()

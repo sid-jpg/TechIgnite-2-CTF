@@ -24,6 +24,7 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
+.env
 
 # IDE
 .idea/
@@ -31,27 +32,20 @@ ENV/
 *.swp
 *.swo
 
-# Streamlit
-.streamlit/secrets.toml
-.streamlit/secrets_template.toml
-
-# Firebase
-firebase-credentials.json
-*firebase*.json
+# Credentials and Sensitive Data
 *.key
 *.pem
-service-account*.json
+*credentials*.json
+*firebase*.json
+config.py
+.env*
+secrets/
+
+# Logs
+*.log
+logs/
+log/
 
 # Local development
-.env
-.env.local
-*.local
-config.local.py
-
-# Database
-*.db
-*.sqlite3
-
-# Temporary files
-*.tmp
 .DS_Store
+Thumbs.db
