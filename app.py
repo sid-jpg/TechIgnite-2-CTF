@@ -4,20 +4,25 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from pages.user_page import render as render_user
 from pages.admin_page import render as render_admin
-import auth
+from auth import show_login, login_required, admin_required, get_user_info, logout
 import json
 
 # Initialize Firebase
 if not firebase_admin._apps:
-    # Get Firebase credentials from Streamlit secrets
-    firebase_creds = st.secrets["firebase"]
-    cred = credentials.Certificate(firebase_creds)
-    firebase_admin.initialize_app(cred)
+    try:
+        # Get Firebase credentials from Streamlit secrets
+        firebase_creds = st.secrets["firebase"]
+        cred = credentials.Certificate(firebase_creds)
+        firebase_admin.initialize_app(cred)
+        st.session_state.firebase_initialized = True
+    except Exception as e:
+        st.error(f"Failed to initialize Firebase: {str(e)}")
+        st.session_state.firebase_initialized = False
 
 # Page configuration
 st.set_page_config(
-    page_title="TechIgnite CTF",
-    page_icon="🚩",
+    page_title="TechIgnite CTF Platform",
+    page_icon="🚀",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -172,6 +177,25 @@ def main():
         st.session_state.admin_view = False
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
+    if 'firebase_initialized' not in st.session_state:
+        st.session_state.firebase_initialized = False
+
+    st.title("🚀 TechIgnite CTF Platform")
+    
+    # Show user info and logout button if authenticated
+    if st.session_state.get("authenticated", False):
+        user_info = get_user_info()
+        col1, col2 = st.columns([3,1])
+        with col1:
+            st.write(f"Welcome, {user_info['email']}!")
+            if st.session_state.get("user_role") == "admin":
+                st.write("🔑 Admin Access")
+        with col2:
+            if st.button("Logout"):
+                logout()
+                st.experimental_rerun()
+    else:
+        show_login()
 
     # Header
     st.markdown('''
