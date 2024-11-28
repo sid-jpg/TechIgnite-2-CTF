@@ -11,20 +11,28 @@ db = get_db()
 st.set_page_config(
     page_title="TechIgnite CTF",
     page_icon="🚀",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"  # Hide sidebar by default
 )
 
-# Sidebar navigation
-def sidebar():
-    with st.sidebar:
-        st.title("Navigation")
-        if is_authenticated():
-            if st.button("Profile"):
-                st.session_state.page = "profile"
-            if st.button("Logout"):
-                logout()
-                st.session_state.page = "home"
-                st.experimental_rerun()
+# Hide sidebar and other default elements
+st.markdown("""
+    <style>
+        [data-testid="collapsedControl"] {
+            display: none
+        }
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stDeployButton {display:none;}
+        header {visibility: hidden;}
+        .appview-container .main .block-container {
+            padding-top: 1rem;
+            padding-right: 1rem;
+            padding-left: 1rem;
+            padding-bottom: 1rem;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 def home_page():
     if not is_authenticated():
@@ -48,8 +56,6 @@ def profile_page():
 def main():
     if "page" not in st.session_state:
         st.session_state.page = "home"
-        
-    sidebar()
     
     if st.session_state.page == "home":
         home_page()
