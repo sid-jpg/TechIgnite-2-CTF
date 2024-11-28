@@ -1,5 +1,5 @@
 import streamlit as st
-from auth import show_login, logout, is_authenticated, login_required
+from auth import show_restricted_access, logout, is_authenticated, login_required
 import firebase_admin
 from firebase_admin import firestore
 from firebase_init import get_db
@@ -25,18 +25,10 @@ def sidebar():
                 logout()
                 st.session_state.page = "home"
                 st.experimental_rerun()
-        else:
-            if st.button("Login"):
-                st.session_state.page = "login"
 
 def home_page():
     if not is_authenticated():
-        st.title("Welcome to TechIgnite CTF! 🚀")
-        st.write("""
-        ### Get Started
-        Please login to access your profile.
-        """)
-        show_login()
+        show_restricted_access()
     else:
         profile_page()
 
@@ -52,9 +44,6 @@ def profile_page():
         st.write(f"**Email:** {user_info.get('email', 'N/A')}")
         st.write(f"**User ID:** {user_info.get('uid', 'N/A')}")
 
-def login_page():
-    show_login()
-
 # Main app
 def main():
     if "page" not in st.session_state:
@@ -62,10 +51,8 @@ def main():
         
     sidebar()
     
-    if st.session_state.page == "home" or not is_authenticated():
+    if st.session_state.page == "home":
         home_page()
-    elif st.session_state.page == "login":
-        login_page()
     elif st.session_state.page == "profile":
         profile_page()
 

@@ -20,52 +20,20 @@ def is_authenticated():
     """Check if user is authenticated"""
     return st.session_state.get("authenticated", False)
 
-def login_user(email, password):
-    """Handle user login"""
-    try:
-        user = auth.get_user_by_email(email)
-        st.session_state["authenticated"] = True
-        st.session_state["user_info"] = {
-            "email": email,
-            "uid": user.uid
-        }
-        return "Login successful"
-    except Exception as e:
-        print(f"Login error: {str(e)}")
-        return "Invalid credentials"
-
 def login_required(func):
     """Decorator to require login for certain pages"""
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not is_authenticated():
-            st.warning("Please log in to access this page")
-            show_login()
+            st.warning("Access restricted. Please contact administrator.")
             return
         return func(*args, **kwargs)
     return wrapper
 
-def show_login():
-    """Display login form"""
-    st.markdown("""
-    <h2 style='text-align: center;'>Login</h2>
-    """, unsafe_allow_html=True)
-    
-    with st.form("login_form"):
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Login")
-        
-        if submit:
-            if email and password:
-                result = login_user(email, password)
-                if "successful" in result:
-                    st.success(result)
-                    st.experimental_rerun()
-                else:
-                    st.error(result)
-            else:
-                st.error("Please enter both email and password")
+def show_restricted_access():
+    """Display restricted access message"""
+    st.title("Restricted Access")
+    st.warning("This is a private application. Please contact administrator for access.")
 
 def logout():
     """Handle logout"""
@@ -76,8 +44,6 @@ def logout():
 def init_auth():
     """Initialize authentication state"""
     if not is_authenticated():
-        show_login()
-    elif st.session_state.get("login_status") == "success":
-        st.session_state["login_status"] = None
+        show_restricted_access()
 
 init_auth()
