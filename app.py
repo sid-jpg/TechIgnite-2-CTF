@@ -7,14 +7,6 @@ from firebase_init import get_db
 # Initialize Firebase
 db = get_db()
 
-# Set page config
-st.set_page_config(
-    page_title="TechIgnite CTF",
-    page_icon=" 🚩",
-    layout="wide",
-    initial_sidebar_state="collapsed"  # Hide sidebar by default
-)
-
 # Hide sidebar and other default elements
 st.markdown("""
     <style>
@@ -29,7 +21,7 @@ st.markdown("""
         .stDeployButton {display:none;}
         header {visibility: hidden;}
         
-        /* Cyberpunk theme */
+        /* Main container styling */
         .stApp {
             background: linear-gradient(45deg, #0a0a0a, #1a1a2e);
             color: #00ff9d;
@@ -41,139 +33,77 @@ st.markdown("""
             border: 1px solid #00ff9d;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         /* Title styling */
-        h1 {
+        .main-title {
             font-family: 'Orbitron', sans-serif !important;
             color: #00ff9d !important;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+            text-align: center;
+            padding: 2rem 0;
             margin-bottom: 2rem;
+            font-size: 2.5rem;
             border-bottom: 2px solid #00ff9d;
-            padding-bottom: 1rem;
         }
         
-        h2, h3 {
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.8rem;
+                padding: 1rem 0;
+            }
+            
+            .appview-container .main .block-container {
+                padding: 1rem;
+                margin: 0.5rem;
+            }
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Orbitron', sans-serif !important;
             color: #00ff9d !important;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+            text-align: center;
         }
         
-        /* Button styling */
-        .stButton>button {
+        /* Text elements */
+        p, div, span {
+            font-family: 'Courier New', monospace;
+            color: #b3b3b3;
+            text-align: center;
+        }
+        
+        /* Components styling */
+        .stButton > button {
             font-family: 'Orbitron', sans-serif !important;
-            background: transparent;
-            color: #00ff9d;
-            border: 2px solid #00ff9d;
-            border-radius: 5px;
-            padding: 0.5rem 2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+            background: transparent !important;
+            color: #00ff9d !important;
+            border: 2px solid #00ff9d !important;
+            border-radius: 5px !important;
+            padding: 0.5rem 2rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2) !important;
+            margin: 0 auto;
+            display: block;
         }
         
-        .stButton>button:hover {
-            background: #00ff9d;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+        .stButton > button:hover {
+            background: #00ff9d !important;
+            color: #1a1a2e !important;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4) !important;
             transform: translateY(-2px);
         }
-        
-        /* Text styling */
-        p, div {
-            color: #b3b3b3;
-            font-family: 'Courier New', monospace;
-        }
-        
-        /* Disable text selection */
-        * {
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-        /* Warning message styling */
-        .stAlert {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            border-radius: 5px;
-            padding: 1rem;
-        }
-        
-        /* Success message styling */
-        .element-container div[data-testid="stMarkdownContainer"] div.stSuccess {
-            background: rgba(0, 255, 157, 0.1);
-            border: 1px solid #00ff9d;
-            color: #00ff9d;
-            border-radius: 5px;
-            padding: 1rem;
-        }
     </style>
-    
-    <script>
-        // Disable right click
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123 || 
-                (e.ctrlKey && e.shiftKey && e.keyCode == 73) ||
-                (e.ctrlKey && e.shiftKey && e.keyCode == 74) ||
-                (e.ctrlKey && e.keyCode == 85)) {
-                return false;
-            }
-        };
-        
-        // Disable view source
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'u') {
-                e.preventDefault();
-                return false;
-            }
-        });
-        
-        // Block developer tools
-        function blockDevTools() {
-            if(window.devtools.isOpen) {
-                window.location.reload();
-            }
-        }
-        
-        // Additional security measures
-        setInterval(function() {
-            const all = document.getElementsByTagName("*");
-            const devtools = /./;
-            devtools.toString = function() {
-                blockDevTools();
-            }
-            console.log(devtools);
-        }, 1000);
-        
-        // Disable dragging
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        // Disable copy/paste
-        document.addEventListener('copy', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('paste', function(e) {
-            e.preventDefault();
-            return false;
-        });
-    </script>
 """, unsafe_allow_html=True)
 
 def home_page():
@@ -207,6 +137,19 @@ def main():
         home_page()
     elif st.session_state.page == "profile":
         profile_page()
+    
+    # Display main title
+    st.markdown('<h1 class="main-title">TechIgnite 2.O</h1>', unsafe_allow_html=True)
+    
+    if not is_authenticated():
+        show_restricted_access()
+    else:
+        st.markdown("""
+            <div style='text-align: center; padding: 2rem;'>
+                <h2>Welcome to TechIgnite CTF</h2>
+                <p>Access the challenges through the navigation menu</p>
+            </div>
+        """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
