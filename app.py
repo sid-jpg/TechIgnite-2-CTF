@@ -74,8 +74,8 @@ def leaderboard_page():
 def profile_page():
     st.title("Profile 👤")
     user_info = st.session_state.get("user_info", {})
-    st.write(f"Username: {user_info.get('email', 'N/A')}")
-    # Add more profile information here
+    st.write(f"Email: {user_info.get('email', 'N/A')}")
+    st.write(f"User ID: {user_info.get('uid', 'N/A')}")
 
 def login_page():
     show_login()
