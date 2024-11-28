@@ -131,7 +131,7 @@ def show_login():
     """, unsafe_allow_html=True)
     
     # Generate a unique form key for each instance
-    form_key = f"auth_login_form_{id(st.session_state)}"
+    form_key = f"auth_login_form_{time.time_ns()}"
     
     with st.form(key=form_key):  
         st.markdown("### Login")

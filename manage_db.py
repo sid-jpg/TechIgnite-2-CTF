@@ -2,11 +2,19 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import argparse
 from datetime import datetime
+import streamlit as st
 
 def init_firebase():
+    """Initialize Firebase with credentials from Streamlit secrets"""
     if not firebase_admin._apps:
-        cred = credentials.Certificate("techiginitectf-firebase-adminsdk-r4bko-3b77c05447.json")
-        firebase_admin.initialize_app(cred)
+        try:
+            # Get Firebase credentials from Streamlit secrets
+            firebase_creds = st.secrets["firebase"]
+            cred = credentials.Certificate(firebase_creds)
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            print(f"Firebase initialization error: {str(e)}")
+            return None
     return firestore.client()
 
 def get_db():
