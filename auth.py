@@ -47,7 +47,7 @@ init_session_state()
 def get_firebase_config():
     """Get Firebase configuration from Streamlit secrets"""
     try:
-        return {
+        config = {
             "apiKey": st.secrets["firebase_web"]["apiKey"],
             "authDomain": st.secrets["firebase_web"]["authDomain"],
             "projectId": st.secrets["firebase_web"]["projectId"],
@@ -56,22 +56,27 @@ def get_firebase_config():
             "appId": st.secrets["firebase_web"]["appId"],
             "databaseURL": st.secrets["firebase_web"]["databaseURL"]
         }
+        print("Firebase config loaded successfully")
+        return config
     except Exception as e:
         st.error("Error loading Firebase configuration. Please check your secrets.toml file.")
-        print(f"Firebase config error: {str(e)}")
+        print("Firebase config error occurred")
         return None
 
 # Initialize Firebase Authentication
 firebase_config = get_firebase_config()
 if firebase_config:
     try:
+        print("Initializing Firebase...")
         firebase = pyrebase.initialize_app(firebase_config)
         auth = firebase.auth()
+        print("Firebase Authentication initialized successfully")
     except Exception as e:
         st.error("Error initializing Firebase. Please check your configuration.")
-        print(f"Firebase init error: {str(e)}")
+        print("Firebase initialization error occurred")
         auth = None
 else:
+    print("No Firebase config available")
     auth = None
 
 def verify_token(id_token):
@@ -80,7 +85,7 @@ def verify_token(id_token):
         decoded_token = firebase_auth.verify_id_token(id_token)
         return decoded_token
     except Exception as e:
-        print(f"Token verification error: {str(e)}")
+        print("Token verification error occurred")
         return None
 
 def is_authenticated():
@@ -95,34 +100,47 @@ def login(email, password):
     """Handle login and return success/error message"""
     try:
         if auth is None:
+            st.error("Firebase authentication not initialized properly")
+            print("Auth object is None - Firebase not initialized correctly")
             return "Firebase authentication not initialized properly"
         
+        print("Attempting login...")
         # Sign in with email and password
         user = auth.sign_in_with_email_and_password(email, password)
+        print("Successfully signed in")
         
         # Get the ID token
-        id_token = user['idToken']
+        id_token = user.get('idToken')
+        if not id_token:
+            print("No idToken found in user object")
+            return "Authentication error: No token received"
         
+        print("Got ID token, attempting to verify...")
         # Verify the token and get user claims
         decoded_token = verify_token(id_token)
         if decoded_token:
+            print("Token verified successfully")
+            
             st.session_state["authenticated"] = True
             st.session_state["user_info"] = user
             st.session_state["user_token"] = id_token
             
             # Store user role if available in custom claims
-            if 'admin' in decoded_token.get('custom_claims', {}):
+            if decoded_token.get('admin', False):
                 st.session_state["user_role"] = 'admin'
+                print("User role set to admin")
             else:
                 st.session_state["user_role"] = 'user'
+                print("User role set to user")
                 
             return "success"
         else:
+            print("Token verification failed")
             return "Invalid token"
             
     except Exception as e:
         error_message = str(e)
-        print(f"Login error: {error_message}")
+        print("Login error occurred")
         
         if "INVALID_PASSWORD" in error_message:
             return "Invalid password"
