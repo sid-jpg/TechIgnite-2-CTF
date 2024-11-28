@@ -8,25 +8,19 @@ import os
 def load_firebase_service_account():
     """Load Firebase Admin SDK service account"""
     try:
-        # First try to load from environment variable
-        if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
-            cred_path = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-            with open(cred_path, 'r') as f:
-                service_account = json.load(f)
-        # Then try to load from secrets
-        else:
-            service_account = {
-                "type": st.secrets["firebase"]["type"],
-                "project_id": st.secrets["firebase"]["project_id"],
-                "private_key_id": st.secrets["firebase"]["private_key_id"],
-                "private_key": st.secrets["firebase"]["private_key"].replace('\\n', '\n'),
-                "client_email": st.secrets["firebase"]["client_email"],
-                "client_id": st.secrets["firebase"]["client_id"],
-                "auth_uri": st.secrets["firebase"]["auth_uri"],
-                "token_uri": st.secrets["firebase"]["token_uri"],
-                "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
-                "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
-            }
+        # Load service account from secrets
+        service_account = {
+            "type": st.secrets["firebase"]["type"],
+            "project_id": st.secrets["firebase"]["project_id"],
+            "private_key_id": st.secrets["firebase"]["private_key_id"],
+            "private_key": st.secrets["firebase"]["private_key"].replace('\\n', '\n'),
+            "client_email": st.secrets["firebase"]["client_email"],
+            "client_id": st.secrets["firebase"]["client_id"],
+            "auth_uri": st.secrets["firebase"]["auth_uri"],
+            "token_uri": st.secrets["firebase"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
+        }
         return service_account
     except Exception as e:
         print(f"Error loading service account: {str(e)}")
@@ -53,16 +47,20 @@ def init_firebase():
         db = firestore.client()
         print("Firestore initialized successfully")
         
-        # Initialize Firebase Authentication with the provided web config
+        # Load Firebase web configuration from secrets
         firebase_config = {
-            "apiKey": "AIzaSyAhlJ-zEZgDuEO5yTGLI19fV6ELto62OEs",
-            "authDomain": "techiginitectf.firebaseapp.com",
-            "projectId": "techiginitectf",
-            "storageBucket": "techiginitectf.firebasestorage.app",
-            "messagingSenderId": "1009814637785",
-            "appId": "1:1009814637785:web:2ce461d0624a5b905bc2c8",
-            "databaseURL": f"https://techiginitectf-default-rtdb.firebaseio.com"
+            "apiKey": st.secrets["firebase_web"]["apiKey"],
+            "authDomain": st.secrets["firebase_web"]["authDomain"],
+            "projectId": st.secrets["firebase_web"]["projectId"],
+            "storageBucket": st.secrets["firebase_web"]["storageBucket"],
+            "messagingSenderId": st.secrets["firebase_web"]["messagingSenderId"],
+            "appId": st.secrets["firebase_web"]["appId"],
+            "databaseURL": st.secrets["firebase_web"]["databaseURL"]
         }
+        
+        # Print debug info (non-sensitive)
+        print(f"Initializing Firebase with project: {firebase_config['projectId']}")
+        print(f"Auth Domain: {firebase_config['authDomain']}")
         
         firebase = pyrebase.initialize_app(firebase_config)
         auth = firebase.auth()
@@ -80,6 +78,7 @@ def init_firebase():
             1. Firebase Console > Project Settings > General
             2. Web API Key is correct and not restricted
             3. Firebase Authentication is enabled
+            4. API key restrictions in Google Cloud Console
             """)
         elif "private_key" in error_msg:
             st.error("""
