@@ -1,13 +1,7 @@
-# Streamlit
+# Sensitive files
+*.json
+.env
 .streamlit/secrets.toml
-*.toml
-!.streamlit/secrets_template.toml
-!requirements.toml
-
-# Firebase
-**/firebase-adminsdk*.json
-**/serviceAccount*.json
-.firebase/
 
 # Python
 __pycache__/
@@ -15,6 +9,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -31,10 +26,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-env/
-ENV/
+# Logs
+*.log
+logs/
+*.log.*
 
 # IDE
 .idea/
@@ -42,15 +37,6 @@ ENV/
 *.swp
 *.swo
 
-# Logs
-*.log
-logs/
-
-# Local development
-.env
-.env.local
-.env.*.local
-
-# System Files
+# OS
 .DS_Store
 Thumbs.db

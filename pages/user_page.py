@@ -2,39 +2,10 @@ import streamlit as st
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
-from manage_db import verify_flag, update_stats
+from manage_db import verify_flag, update_stats, get_db
 
-# Initialize Firebase if not already initialized
-if not firebase_admin._apps:
-    try:
-        # Get credentials from Streamlit secrets and ensure proper formatting
-        firebase_creds = {
-            "type": st.secrets["firebase"]["type"],
-            "project_id": st.secrets["firebase"]["project_id"],
-            "private_key_id": st.secrets["firebase"]["private_key_id"],
-            "private_key": st.secrets["firebase"]["private_key"],
-            "client_email": st.secrets["firebase"]["client_email"],
-            "client_id": st.secrets["firebase"]["client_id"],
-            "auth_uri": st.secrets["firebase"]["auth_uri"],
-            "token_uri": st.secrets["firebase"]["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
-            "universe_domain": st.secrets["firebase"]["universe_domain"]
-        }
-        
-        # Initialize Firebase with the credentials
-        try:
-            app = firebase_admin.get_app()
-        except ValueError:
-            cred = credentials.Certificate(firebase_creds)
-            app = firebase_admin.initialize_app(cred)
-        
-        # Get Firestore database
-        db = firestore.client()
-    except Exception as e:
-        st.error(f"Firebase initialization error: {str(e)}")
-        print(f"Detailed error: {str(e)}")  # For debugging
-        st.stop()
+# Get database instance
+db = get_db()
 
 # Custom CSS for dark theme
 st.markdown("""
@@ -205,8 +176,6 @@ st.markdown("""
 
 def render():
     st.title("CTF Challenge Submission")
-    
-    db = firestore.client()
     
     with st.container():
         st.markdown('<div class="submission-form">', unsafe_allow_html=True)

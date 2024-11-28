@@ -5,10 +5,10 @@ from manage_db import get_db
 from google.cloud.firestore import Query
 from auth import login_required, logout
 
-# Initialize Firebase
+# Get database instance
 db = get_db()
 
-# Initialize session state for auto-refresh
+# Initialize session state
 if 'last_refresh' not in st.session_state:
     st.session_state.last_refresh = datetime.now()
 if 'auto_refresh' not in st.session_state:

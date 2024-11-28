@@ -5,13 +5,16 @@ from datetime import datetime
 import streamlit as st
 
 def init_firebase():
-    """Initialize Firebase with credentials from Streamlit secrets"""
+    """Initialize Firebase with credentials from service account"""
     if not firebase_admin._apps:
         try:
-            # Get Firebase credentials from Streamlit secrets
-            firebase_creds = st.secrets["firebase"]
-            cred = credentials.Certificate(firebase_creds)
-            firebase_admin.initialize_app(cred)
+            # Use the centralized firebase initialization
+            from firebase_init import init_firebase as init_firebase_auth
+            auth = init_firebase_auth()
+            if not auth:
+                print("Failed to initialize Firebase Authentication")
+                return None
+            return firestore.client()
         except Exception as e:
             print(f"Firebase initialization error: {str(e)}")
             return None
@@ -19,7 +22,9 @@ def init_firebase():
 
 def get_db():
     """Get Firestore database instance"""
-    return init_firebase()
+    if 'db' not in st.session_state:
+        st.session_state.db = init_firebase()
+    return st.session_state.db
 
 def verify_flag(team_id, question_id, submitted_flag):
     """Verify a submitted flag and update stats if correct"""
