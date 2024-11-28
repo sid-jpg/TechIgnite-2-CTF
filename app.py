@@ -18,6 +18,8 @@ st.set_page_config(
 # Hide sidebar and other default elements
 st.markdown("""
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        
         /* Hide default Streamlit elements */
         [data-testid="collapsedControl"] {
             display: none
@@ -26,11 +28,65 @@ st.markdown("""
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
         header {visibility: hidden;}
+        
+        /* Cyberpunk theme */
+        .stApp {
+            background: linear-gradient(45deg, #0a0a0a, #1a1a2e);
+            color: #00ff9d;
+        }
+        
         .appview-container .main .block-container {
-            padding-top: 1rem;
-            padding-right: 1rem;
-            padding-left: 1rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff9d;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+        }
+        
+        /* Title styling */
+        h1 {
+            font-family: 'Orbitron', sans-serif !important;
+            color: #00ff9d !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #00ff9d;
             padding-bottom: 1rem;
+        }
+        
+        h2, h3 {
+            font-family: 'Orbitron', sans-serif !important;
+            color: #00ff9d !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Button styling */
+        .stButton>button {
+            font-family: 'Orbitron', sans-serif !important;
+            background: transparent;
+            color: #00ff9d;
+            border: 2px solid #00ff9d;
+            border-radius: 5px;
+            padding: 0.5rem 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+        }
+        
+        .stButton>button:hover {
+            background: #00ff9d;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Text styling */
+        p, div {
+            color: #b3b3b3;
+            font-family: 'Courier New', monospace;
         }
         
         /* Disable text selection */
@@ -40,25 +96,22 @@ st.markdown("""
             user-select: none;
         }
         
-        /* Custom styling */
-        .stApp {
-            background-color: #1a1a1a;
-            color: #ffffff;
+        /* Warning message styling */
+        .stAlert {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            border-radius: 5px;
+            padding: 1rem;
         }
         
-        h1, h2, h3 {
-            color: #ffffff !important;
-        }
-        
-        .stButton>button {
-            background-color: #2e2e2e;
-            color: #ffffff;
-            border: 1px solid #3d3d3d;
-        }
-        
-        .stButton>button:hover {
-            background-color: #3d3d3d;
-            border: 1px solid #4d4d4d;
+        /* Success message styling */
+        .element-container div[data-testid="stMarkdownContainer"] div.stSuccess {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid #00ff9d;
+            color: #00ff9d;
+            border-radius: 5px;
+            padding: 1rem;
         }
     </style>
     
@@ -131,15 +184,19 @@ def home_page():
 
 @login_required
 def profile_page():
-    st.title("User Profile 👤")
+    st.markdown("<h1>User Profile 👤</h1>", unsafe_allow_html=True)
     user_info = st.session_state.get("user_info", {})
     
     # Display user information
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("### User Information")
-        st.write(f"**Email:** {user_info.get('email', 'N/A')}")
-        st.write(f"**User ID:** {user_info.get('uid', 'N/A')}")
+        st.markdown("<h3>User Information</h3>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style='background: rgba(0, 255, 157, 0.1); padding: 1rem; border-radius: 5px; border: 1px solid #00ff9d;'>
+            <p style='color: #00ff9d; margin: 0.5rem 0;'><strong>Email:</strong> {user_info.get('email', 'N/A')}</p>
+            <p style='color: #00ff9d; margin: 0.5rem 0;'><strong>User ID:</strong> {user_info.get('uid', 'N/A')}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Main app
 def main():
