@@ -7,12 +7,12 @@ from manage_db import verify_flag, update_stats
 # Initialize Firebase if not already initialized
 if not firebase_admin._apps:
     try:
-        # Get credentials from Streamlit secrets and format them properly
+        # Get credentials from Streamlit secrets and ensure proper formatting
         firebase_creds = {
             "type": st.secrets["firebase"]["type"],
             "project_id": st.secrets["firebase"]["project_id"],
             "private_key_id": st.secrets["firebase"]["private_key_id"],
-            "private_key": st.secrets["firebase"]["private_key"],  # Already properly formatted in secrets
+            "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),  # Ensure newlines are properly handled
             "client_email": st.secrets["firebase"]["client_email"],
             "client_id": st.secrets["firebase"]["client_id"],
             "auth_uri": st.secrets["firebase"]["auth_uri"],
@@ -27,6 +27,7 @@ if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
     except Exception as e:
         st.error(f"Firebase initialization error: {str(e)}")
+        print(f"Detailed error: {str(e)}")  # For debugging
         st.stop()
 
 # Custom CSS for dark theme
