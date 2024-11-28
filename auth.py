@@ -130,7 +130,7 @@ def show_login():
     </style>
     """, unsafe_allow_html=True)
     
-    with st.form("login_form"):
+    with st.form(key="auth_login_form"):  
         st.markdown("### Login")
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
