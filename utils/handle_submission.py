@@ -1,6 +1,5 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-from datetime import datetime
 
 def handle_flag_submission(db, team_id, qid, submitted_flag):
     """
@@ -15,12 +14,17 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
         if not question.exists:
             return False, "Question not found"
         
+        # Get the flag and clean it the same way as in setup_database.py
         question_data = question.to_dict()
         correct_flag = question_data.get('Flag')
         
-        # Simple direct comparison
+        # Clean submitted flag the same way as stored flag
+        submitted_flag = str(submitted_flag).strip()
+        submitted_flag = submitted_flag.replace('\n', '').replace('\r', '')
+        
+        # Direct comparison
         if submitted_flag != correct_flag:
-            return False, "Incorrect flag"
+            return False, "Incorrect flag. Keep trying!"
             
         # If flag is correct, update solvedBy array
         solved_by = question_data.get('solvedBy', [])
@@ -30,7 +34,20 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
                 'solvedBy': solved_by
             })
             
-        return True, "Flag is correct!"
+            # Update team's progress
+            team_ref = db.collection('Teams').document(team_id)
+            team = team_ref.get()
+            if team.exists:
+                team_data = team.to_dict()
+                questions_solved = team_data.get('questionsSolved', [])
+                if qid not in questions_solved:
+                    questions_solved.append(qid)
+                    team_ref.update({
+                        'questionsSolved': questions_solved,
+                        'totalCount': len(questions_solved)
+                    })
+            
+        return True, "Flag is correct! 🎉"
         
     except Exception as e:
         print(f"Error: {str(e)}")
