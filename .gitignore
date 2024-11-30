@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -23,8 +22,8 @@ wheels/
 
 # Virtual Environment
 venv/
-ENV/
 env/
+ENV/
 
 # IDE
 .idea/
@@ -32,30 +31,14 @@ env/
 *.swp
 *.swo
 
-# Logs
-*.log
-logs/
-log/
+# Firebase
+*firebase*credentials*.json
+*firebase*admin*.json
+*serviceAccount*.json
+*.firebase*.json
 
 # Local development
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# System Files
+.env
+*.log
 .DS_Store
 Thumbs.db
-
-# Firebase credentials
-firebase_credentials.json
-*firebase*.json
-serviceAccount*.json
-
-# Data files
-*.xlsx
-*.xls
-*.csv
-
-# Streamlit secrets
-.streamlit/secrets.toml

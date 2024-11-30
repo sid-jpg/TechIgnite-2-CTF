@@ -1,13 +1,28 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
+import logging
+from typing import Tuple, Optional
 
-def handle_flag_submission(db, team_id, qid, submitted_flag):
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def handle_flag_submission(db, team_id: str, qid: str, flag: str) -> Tuple[bool, str]:
     """
-    Handle flag submission and update solvedBy field if flag is correct
-    Returns: (success, message)
+    Handle flag submission with exact matching
+    
+    Args:
+        db: Firestore database instance
+        team_id: Team ID submitting the flag
+        qid: Question ID (e.g., 'Q1')
+        flag: Flag string exactly as submitted
+        
+    Returns:
+        Tuple[bool, str]: (success, message)
     """
     try:
-        # Convert qid to uppercase and ensure it starts with Q
+        # Log submission attempt
+        logger.debug(f"Flag submission attempt - Team: {team_id}, QID: {qid}, Flag: {flag}")
+        
+        # Clean up question ID only (preserve flag exactly as is)
         qid = qid.strip().upper()
         if not qid.startswith('Q'):
             qid = 'Q' + qid
@@ -16,50 +31,48 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
         question_ref = db.collection('Questions').document(qid)
         question = question_ref.get()
         
+        # Validate question exists
         if not question.exists:
-            print(f"Question {qid} not found")
-            return False, "Question not found"
-        
-        # Get the flag from database
-        question_data = question.to_dict()
-        correct_flag = question_data.get('Flag')  # Capital F!
-        
-        print(f"Debug Info:")
-        print(f"Question ID: {qid}")
-        print(f"Submitted Flag: '{submitted_flag}'")
-        print(f"Correct Flag: '{correct_flag}'")
-        
-        # Direct string comparison without any modifications
-        if submitted_flag != correct_flag:
-            print("Flags don't match!")
-            return False, "Incorrect flag. Keep trying!"
+            logger.warning(f"Question {qid} not found")
+            return False, f"Question {qid} not found"
             
-        print("Flags match! Updating solvedBy...")
+        # Get question data
+        q_data = question.to_dict()
         
-        # Update solvedBy array
-        solved_by = question_data.get('solvedBy', [])
-        if team_id not in solved_by:
-            solved_by.append(team_id)
-            question_ref.update({
-                'solvedBy': solved_by
-            })
+        # Check if team already solved
+        if team_id in q_data.get('solvedBy', []):
+            logger.info(f"Team {team_id} already solved {qid}")
+            return False, "You have already solved this question!"
             
-            # Update team's progress
-            team_ref = db.collection('Teams').document(team_id)
-            team = team_ref.get()
-            if team.exists:
-                team_data = team.to_dict()
-                questions_solved = team_data.get('questionsSolved', [])
-                if qid not in questions_solved:
-                    questions_solved.append(qid)
-                    questions_solved.sort()  # Keep questions sorted
-                    team_ref.update({
-                        'questionsSolved': questions_solved,
-                        'totalCount': len(questions_solved)
-                    })
+        # Get correct flag
+        correct_flag = q_data.get('Flag')
+        if not correct_flag:
+            logger.error(f"No flag found for question {qid}")
+            return False, "Internal error: No flag found for this question"
             
-        return True, "Flag is correct! 🎉"
+        # Log flag comparison details
+        logger.debug(f"Flag comparison - Submitted: '{flag}' (len: {len(flag)}), Correct: '{correct_flag}' (len: {len(correct_flag)})")
+        
+        # Exact flag comparison
+        if flag != correct_flag:
+            logger.info(f"Incorrect flag submitted for {qid}")
+            return False, "Incorrect flag"
+            
+        # Update question's solvedBy array
+        question_ref.update({
+            'solvedBy': db.field_path('solvedBy').arrayUnion([team_id])
+        })
+        
+        # Update team's progress
+        team_ref = db.collection('Teams').document(team_id)
+        team_ref.update({
+            'questionsSolved': db.field_path('questionsSolved').arrayUnion([qid]),
+            'totalCount': db.field_path('totalCount').increment(1)
+        })
+        
+        logger.info(f"Team {team_id} successfully solved {qid}")
+        return True, "Correct flag! Question solved!"
         
     except Exception as e:
-        print(f"Error in handle_flag_submission: {str(e)}")
-        return False, "Error processing submission"
+        logger.error(f"Error in handle_flag_submission: {str(e)}", exc_info=True)
+        return False, f"Internal error: {str(e)}"

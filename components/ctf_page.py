@@ -18,18 +18,14 @@ def show_ctf_page(db):
     st.markdown("### 🎯 Submit Flag")
     with st.form("flag_submission"):
         qid = st.text_input("Question ID", placeholder="Enter question ID (e.g., Q1)")
-        flag = st.text_input("Flag", placeholder="Enter flag (e.g., FLAG{...})")
+        flag = st.text_input("Flag", placeholder="Enter flag exactly as is (e.g., FLAG{...})")
         submitted = st.form_submit_button("Submit Flag")
         
         if submitted:
             if not qid or not flag:
                 st.error("Please enter both Question ID and Flag!")
             else:
-                # Clean up inputs
-                qid = qid.strip().upper()
-                flag = flag.strip()
-                
-                # Handle submission
+                # Handle submission without any flag modification
                 handle_flag_submission_ui(db, team_id, qid, flag)
                 
     # Show available questions
