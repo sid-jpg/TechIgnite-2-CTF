@@ -7,26 +7,36 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
     Returns: (success, message)
     """
     try:
+        # Convert qid to uppercase and ensure it starts with Q
+        qid = qid.strip().upper()
+        if not qid.startswith('Q'):
+            qid = 'Q' + qid
+            
         # Get question document
         question_ref = db.collection('Questions').document(qid)
         question = question_ref.get()
         
         if not question.exists:
+            print(f"Question {qid} not found")
             return False, "Question not found"
         
-        # Get the flag and clean it the same way as in setup_database.py
+        # Get the flag from database
         question_data = question.to_dict()
-        correct_flag = question_data.get('Flag')
+        correct_flag = question_data.get('Flag')  # Capital F!
         
-        # Clean submitted flag the same way as stored flag
-        submitted_flag = str(submitted_flag).strip()
-        submitted_flag = submitted_flag.replace('\n', '').replace('\r', '')
+        print(f"Debug Info:")
+        print(f"Question ID: {qid}")
+        print(f"Submitted Flag: '{submitted_flag}'")
+        print(f"Correct Flag: '{correct_flag}'")
         
-        # Direct comparison
+        # Direct string comparison without any modifications
         if submitted_flag != correct_flag:
+            print("Flags don't match!")
             return False, "Incorrect flag. Keep trying!"
             
-        # If flag is correct, update solvedBy array
+        print("Flags match! Updating solvedBy...")
+        
+        # Update solvedBy array
         solved_by = question_data.get('solvedBy', [])
         if team_id not in solved_by:
             solved_by.append(team_id)
@@ -42,6 +52,7 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
                 questions_solved = team_data.get('questionsSolved', [])
                 if qid not in questions_solved:
                     questions_solved.append(qid)
+                    questions_solved.sort()  # Keep questions sorted
                     team_ref.update({
                         'questionsSolved': questions_solved,
                         'totalCount': len(questions_solved)
@@ -50,5 +61,5 @@ def handle_flag_submission(db, team_id, qid, submitted_flag):
         return True, "Flag is correct! 🎉"
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error in handle_flag_submission: {str(e)}")
         return False, "Error processing submission"
