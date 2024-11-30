@@ -3,6 +3,7 @@ from auth import show_restricted_access, logout, is_authenticated, login_require
 import firebase_admin
 from firebase_admin import firestore
 from firebase_init import get_db
+from components.ctf_page import show_ctf_page
 
 # Initialize Firebase
 db = get_db()
@@ -103,53 +104,59 @@ st.markdown("""
             box-shadow: 0 0 20px rgba(0, 255, 157, 0.4) !important;
             transform: translateY(-2px);
         }
+        
+        /* Form styling */
+        .stTextInput > div > div {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid #00ff9d !important;
+            color: #00ff9d !important;
+        }
+        
+        .stTextInput > label {
+            color: #00ff9d !important;
+            font-family: 'Orbitron', sans-serif !important;
+        }
+        
+        /* Select box styling */
+        .stSelectbox > div > div {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid #00ff9d !important;
+            color: #00ff9d !important;
+        }
+        
+        .stSelectbox > label {
+            color: #00ff9d !important;
+            font-family: 'Orbitron', sans-serif !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-def home_page():
-    if not is_authenticated():
-        show_restricted_access()
-    else:
-        profile_page()
-
 @login_required
-def profile_page():
-    st.markdown("<h1>User Profile 👤</h1>", unsafe_allow_html=True)
-    user_info = st.session_state.get("user_info", {})
+def home_page():
+    st.markdown('<h1 class="main-title">TechIgnite 2.O</h1>', unsafe_allow_html=True)
     
-    # Display user information
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("<h3>User Information</h3>", unsafe_allow_html=True)
-        st.markdown(f"""
-        <div style='background: rgba(0, 255, 157, 0.1); padding: 1rem; border-radius: 5px; border: 1px solid #00ff9d;'>
-            <p style='color: #00ff9d; margin: 0.5rem 0;'><strong>Email:</strong> {user_info.get('email', 'N/A')}</p>
-            <p style='color: #00ff9d; margin: 0.5rem 0;'><strong>User ID:</strong> {user_info.get('uid', 'N/A')}</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Team selection
+    if "team_id" not in st.session_state:
+        st.markdown("### 👥 Select Your Team")
+        teams = [f"TEAM{i}" for i in range(1, 31)]
+        team_id = st.selectbox("Choose your team", teams)
+        if st.button("Confirm Team"):
+            st.session_state.team_id = team_id
+            st.experimental_rerun()
+    else:
+        show_ctf_page(db)
+        
+        # Add logout button
+        if st.button("Logout"):
+            logout()
+            st.experimental_rerun()
 
 # Main app
 def main():
-    if "page" not in st.session_state:
-        st.session_state.page = "home"
-    
-    if st.session_state.page == "home":
-        home_page()
-    elif st.session_state.page == "profile":
-        profile_page()
-    
-    # Display main title
-    st.markdown('<h1 class="main-title">TechIgnite 2.O</h1>', unsafe_allow_html=True)
-    
     if not is_authenticated():
         show_restricted_access()
     else:
-        st.markdown("""
-            <div style='text-align: center; padding: 2rem;'>
-                <h2>Welcome to TechIgnite CTF</h2>
-                <p>Access the challenges through the navigation menu</p>
-            </div>
-        """, unsafe_allow_html=True)
+        home_page()
 
 if __name__ == "__main__":
     main()

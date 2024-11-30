@@ -4,11 +4,11 @@ A secure Capture The Flag (CTF) platform built with Streamlit and Firebase.
 
 ## 🚀 Features
 - Secure Authentication System
-- Admin Dashboard
-- User Management
-- Challenge Management
-- Real-time Scoring
-- Secure File Handling
+- Team-based CTF Platform
+- Real-time Flag Submission
+- Progress Tracking
+- Question Management
+- Secure Credential Handling
 
 ## 🛠️ Setup Instructions
 
@@ -18,35 +18,57 @@ A secure Capture The Flag (CTF) platform built with Streamlit and Firebase.
    ```
 
 2. **Firebase Configuration**
-   - Copy `config_template.py` to `config.py`
-   - Fill in your Firebase credentials in `config.py`
-   - Place your Firebase service account JSON file in the project root
-   - Update the path in `firebase_init.py`
+   - Create a Firebase project at https://console.firebase.google.com/
+   - Generate a new service account key from Project Settings > Service Accounts
+   - Create `.streamlit/secrets.toml` with your Firebase credentials:
+     ```toml
+     [firebase]
+     type = "service_account"
+     project_id = "your-project-id"
+     private_key_id = "your-private-key-id"
+     private_key = "your-private-key"
+     client_email = "your-client-email"
+     client_id = "your-client-id"
+     auth_uri = "https://accounts.google.com/o/oauth2/auth"
+     token_uri = "https://oauth2.googleapis.com/token"
+     auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
+     client_x509_cert_url = "your-cert-url"
+     ```
 
-3. **Streamlit Configuration**
-   - Create `.streamlit/secrets.toml` from the template
-   - Add your Firebase configuration
+3. **Initialize Database**
+   - Place your questions Excel file in the project root
+   - Run the database setup script:
+     ```bash
+     python utils/setup_database.py
+     ```
 
-4. **Initialize Admin**
-   ```bash
-   python init_admin.py
-   ```
-   - Default admin credentials:
-     - Username: admin
-     - Password: admin123
-   - **Important**: Change these credentials after first login!
-
-5. **Run the Application**
+4. **Run the Application**
    ```bash
    streamlit run app.py
    ```
 
+## 📊 Database Structure
+
+### Collections
+1. **Questions**
+   - `qid`: Question ID (e.g., Q1)
+   - `Flag`: The correct flag
+   - `solvedBy`: List of teams who solved it
+
+2. **Teams**
+   - `teamid`: Team identifier
+   - `totalCount`: Number of questions solved
+   - `questionsSolved`: List of solved question IDs
+
+3. **Submissions**
+   - Tracks all flag submissions with timestamps
+
 ## 🔒 Security Notes
-- Never commit sensitive credentials to version control
-- Change default admin credentials immediately
-- Keep your service account key secure
-- Regularly update dependencies
+- Never commit secrets.toml or any credentials to version control
+- Keep your Firebase service account key secure
+- Regularly rotate credentials
 - Monitor authentication logs
+- Use environment-specific secrets in production
 
 ## 🤝 Contributing
 1. Fork the repository

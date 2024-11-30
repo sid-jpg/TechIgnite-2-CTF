@@ -32,19 +32,6 @@ env/
 *.swp
 *.swo
 
-# Credentials and Secrets
-*.key
-*.pem
-*.env
-config.py
-firebase_credentials.json
-serviceAccountKey.json
-*_key.json
-credentials.json
-secrets.yaml
-secrets.yml
-secrets.json
-
 # Logs
 *.log
 logs/
@@ -59,3 +46,16 @@ log/
 # System Files
 .DS_Store
 Thumbs.db
+
+# Firebase credentials
+firebase_credentials.json
+*firebase*.json
+serviceAccount*.json
+
+# Data files
+*.xlsx
+*.xls
+*.csv
+
+# Streamlit secrets
+.streamlit/secrets.toml
